@@ -1,22 +1,6 @@
 # github.com/andybalholm/brotli v1.0.2
 ## explicit; go 1.12
 github.com/andybalholm/brotli
-# github.com/buckhx/diglet v0.0.13-a
-## explicit
-github.com/buckhx/diglet/geo
-github.com/buckhx/diglet/util
-# github.com/buckhx/rtreego v0.0.0-20160224233401-f7e5458b183e
-## explicit
-github.com/buckhx/rtreego
-# github.com/buckhx/tiles v0.0.0-20160614171505-4994e5527da5
-## explicit
-github.com/buckhx/tiles
-# github.com/codegangsta/cli v1.20.0
-## explicit
-github.com/codegangsta/cli
-# github.com/deckarep/golang-set v1.7.1
-## explicit
-github.com/deckarep/golang-set
 # github.com/gofiber/fiber/v2 v2.20.1
 ## explicit; go 1.16
 github.com/gofiber/fiber/v2
@@ -33,9 +17,37 @@ github.com/gofiber/fiber/v2/utils
 github.com/klauspost/compress/flate
 github.com/klauspost/compress/gzip
 github.com/klauspost/compress/zlib
-# github.com/kpawlik/geojson v0.0.0-20171201195549-1a4f120c6b41
+# github.com/tidwall/cities v0.1.0
 ## explicit
-github.com/kpawlik/geojson
+github.com/tidwall/cities
+# github.com/tidwall/geoindex v1.4.4
+## explicit; go 1.15
+github.com/tidwall/geoindex
+github.com/tidwall/geoindex/algo
+github.com/tidwall/geoindex/child
+# github.com/tidwall/geojson v1.3.0
+## explicit; go 1.15
+github.com/tidwall/geojson
+github.com/tidwall/geojson/geo
+github.com/tidwall/geojson/geometry
+# github.com/tidwall/gjson v1.7.4
+## explicit; go 1.12
+github.com/tidwall/gjson
+# github.com/tidwall/lotsa v1.0.2
+## explicit
+github.com/tidwall/lotsa
+# github.com/tidwall/match v1.0.3
+## explicit; go 1.15
+github.com/tidwall/match
+# github.com/tidwall/pretty v1.1.0
+## explicit
+github.com/tidwall/pretty
+# github.com/tidwall/rtree v1.3.1
+## explicit; go 1.15
+github.com/tidwall/rtree
+# github.com/tidwall/sjson v1.1.6
+## explicit; go 1.14
+github.com/tidwall/sjson
 # github.com/valyala/bytebufferpool v1.0.0
 ## explicit
 github.com/valyala/bytebufferpool
