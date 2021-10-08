@@ -24,7 +24,7 @@ func NewCollection() *Collection {
 }
 
 func (c *Collection) Insert(g geojson.Object) {
-	f := fence{object: g}
+	f := &fence{object: g}
 
 	if !f.object.Empty() {
 		rect := f.object.Rect()
@@ -49,8 +49,8 @@ func (c *Collection) geoSearch(
 	c.index.Search(
 		[2]float64{rect.Min.X, rect.Min.Y},
 		[2]float64{rect.Max.X, rect.Max.Y},
-		func(_, _ [2]float64, itemv interface{}) bool {
-			item := itemv.(*fence)
+		func(_, _ [2]float64, value interface{}) bool {
+			item := value.(*fence)
 			alive = iter(item.object)
 			return alive
 		},
@@ -58,7 +58,10 @@ func (c *Collection) geoSearch(
 	return alive
 }
 
-func (c *Collection) Intersects(obj geojson.Object, iter func(object geojson.Object) bool) bool {
+func (c *Collection) Intersects(
+	obj geojson.Object,
+	iter func(object geojson.Object) bool,
+) bool {
 	return c.geoSearch(obj.Rect(),
 		func(f geojson.Object) bool {
 			if f.Intersects(obj) {

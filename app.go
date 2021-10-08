@@ -16,11 +16,12 @@ type resp struct {
 func main() {
 	col := detectr.NewCollection()
 
-	o := `{type":"Feature","properties":{"spec":"reduced-speed"},"geometry":{"type":"Polygon","coordinates":[[[12.8814697265625,52.26815737376817],[13.809814453125,52.26815737376817],[13.809814453125,52.76289173758374],[12.8814697265625,52.76289173758374],[12.8814697265625,52.26815737376817]]]}}`
+	o := `{"type":"Feature","properties":{"spec":"reduced-speed"},"geometry":{"type":"Polygon","coordinates":[[[12.8814697265625,52.26815737376817],[13.809814453125,52.26815737376817],[13.809814453125,52.76289173758374],[12.8814697265625,52.76289173758374],[12.8814697265625,52.26815737376817]]]}}`
 
 	g, err := geojson.Parse(o, nil)
 
 	if err != nil {
+		fmt.Print(err)
 		return
 	}
 
@@ -35,10 +36,17 @@ func main() {
 
 	app.Get("/index", func(c *fiber.Ctx) error {
 
-		p := geojson.NewPoint(geometry.Point{X: 13.809814453125, Y: 52.26815737376817})
+		p := geojson.NewPoint(geometry.Point{X: 23.809814453125, Y: 52.26815737376817})
 		fmt.Print(p)
 
-		return c.JSON(resp{objects: col.Count()})
+		var count = 0
+		var items []geojson.Object
+		col.Intersects(p, func(obj geojson.Object) bool {
+			count++
+			items = append(items, obj)
+			return true
+		})
+		return c.JSON(items)
 
 	})
 
