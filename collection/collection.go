@@ -1,4 +1,4 @@
-package detectr
+package collection
 
 import (
 	"github.com/tidwall/geoindex"
@@ -58,7 +58,7 @@ func (c *Collection) geoSearch(
 	return alive
 }
 
-func (c *Collection) Intersects(
+func (c *Collection) intersects(
 	obj geojson.Object,
 	iter func(object geojson.Object) bool,
 ) bool {
@@ -70,4 +70,15 @@ func (c *Collection) Intersects(
 			return true
 		},
 	)
+}
+
+func (c *Collection) Intersects(
+	obj geojson.Object,
+) []geojson.Object {
+	var items []geojson.Object
+	c.intersects(obj, func(o geojson.Object) bool {
+		items = append(items, o)
+		return true
+	})
+	return items
 }
