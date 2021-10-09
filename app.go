@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/iwpnd/detectr/collection"
 	"github.com/iwpnd/detectr/models"
 	"github.com/iwpnd/detectr/validation"
@@ -14,7 +15,13 @@ import (
 func main() {
 	col := collection.NewCollection()
 
-	col.LoadFromPath("bin/test.geojson")
+	err := col.LoadFromPath("bin/test.geojson")
+
+	if err != nil {
+		fmt.Print("Could not load from file")
+	}
+
+	fmt.Printf("Successfully inserted %v items to the collection", col.Count())
 
 	app := fiber.New()
 	// app.Use(keyauth.New())

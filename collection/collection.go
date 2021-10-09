@@ -1,7 +1,6 @@
 package collection
 
 import (
-	"fmt"
 	"github.com/tidwall/geoindex"
 	"github.com/tidwall/geojson"
 	"github.com/tidwall/geojson/geometry"
@@ -105,9 +104,8 @@ func (c *Collection) LoadFromPath(path string) error {
 			return true
 		}
 
-		fmt.Println(o)
-
 		c.Insert(o)
+		c.objects++
 		return true
 	})
 
