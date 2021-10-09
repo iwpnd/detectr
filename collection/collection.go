@@ -1,10 +1,12 @@
 package collection
 
 import (
+	"fmt"
 	"github.com/tidwall/geoindex"
 	"github.com/tidwall/geojson"
 	"github.com/tidwall/geojson/geometry"
 	"github.com/tidwall/rtree"
+	"io/ioutil"
 )
 
 type Collection struct {
@@ -76,9 +78,38 @@ func (c *Collection) Intersects(
 	obj geojson.Object,
 ) []geojson.Object {
 	var items []geojson.Object
+
 	c.intersects(obj, func(o geojson.Object) bool {
 		items = append(items, o)
 		return true
 	})
+
 	return items
+}
+
+func (c *Collection) LoadFromPath(path string) error {
+	file, err := ioutil.ReadFile(path)
+
+	if err != nil {
+		return err
+	}
+
+	fc, err := geojson.Parse(string(file), nil)
+
+	if err != nil {
+		return err
+	}
+
+	fc.ForEach(func(o geojson.Object) bool {
+		if o.Empty() {
+			return true
+		}
+
+		fmt.Println(o)
+
+		c.Insert(o)
+		return true
+	})
+
+	return nil
 }
