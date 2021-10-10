@@ -1,4 +1,4 @@
-package collection
+package fences
 
 import (
 	"github.com/tidwall/geoindex"
@@ -17,37 +17,43 @@ type fence struct {
 	object geojson.Object
 }
 
-func NewCollection() *Fences {
-	c := &Fences{
+var database = New()
+
+func New() *Fences {
+	fences := &Fences{
 		tree: geoindex.Wrap(&rtree.RTree{}),
 	}
-	return c
+	return fences
 }
 
-func (c *Fences) Create(g geojson.Object) {
+func Get() *Fences {
+	return database
+}
+
+func (fences *Fences) Create(g geojson.Object) {
 	f := &fence{object: g}
 
 	if !f.object.Empty() {
 		rect := f.object.Rect()
-		c.tree.Insert(
+		fences.tree.Insert(
 			[2]float64{rect.Min.X, rect.Min.Y},
 			[2]float64{rect.Max.X, rect.Max.Y},
 			f,
 		)
-		c.objects++
+		fences.objects++
 	}
 }
 
-func (c *Fences) Count() int {
-	return c.objects
+func (fences *Fences) Count() int {
+	return fences.objects
 }
 
-func (c *Fences) search(
+func (fences *Fences) search(
 	rect geometry.Rect,
 	iter func(object geojson.Object) bool,
 ) bool {
 	alive := true
-	c.tree.Search(
+	fences.tree.Search(
 		[2]float64{rect.Min.X, rect.Min.Y},
 		[2]float64{rect.Max.X, rect.Max.Y},
 		func(_, _ [2]float64, value interface{}) bool {
@@ -59,11 +65,11 @@ func (c *Fences) search(
 	return alive
 }
 
-func (c *Fences) intersects(
+func (fences *Fences) intersects(
 	obj geojson.Object,
 	iter func(object geojson.Object) bool,
 ) bool {
-	return c.search(obj.Rect(),
+	return fences.search(obj.Rect(),
 		func(f geojson.Object) bool {
 			if f.Intersects(obj) {
 				return iter(f)
@@ -73,20 +79,20 @@ func (c *Fences) intersects(
 	)
 }
 
-func (c *Fences) Intersects(
+func (fences *Fences) Intersects(
 	obj geojson.Object,
 ) []geojson.Object {
-	var items []geojson.Object
+	var matches []geojson.Object
 
-	c.intersects(obj, func(o geojson.Object) bool {
-		items = append(items, o)
+	fences.intersects(obj, func(o geojson.Object) bool {
+		matches = append(matches, o)
 		return true
 	})
 
-	return items
+	return matches
 }
 
-func (c *Fences) LoadFromPath(path string) error {
+func (fences *Fences) LoadFromPath(path string) error {
 	file, err := ioutil.ReadFile(path)
 
 	if err != nil {
@@ -104,8 +110,8 @@ func (c *Fences) LoadFromPath(path string) error {
 			return true
 		}
 
-		c.Create(o)
-		c.objects++
+		fences.Create(o)
+		fences.objects++
 		return true
 	})
 
