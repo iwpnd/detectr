@@ -1,33 +1,51 @@
 package main
 
 import (
-	"fmt"
 	"github.com/iwpnd/detectr/collection"
 	"github.com/iwpnd/detectr/models"
 	"github.com/iwpnd/detectr/validation"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/iwpnd/fiber-key-auth"
 	"github.com/tidwall/geojson"
 	"github.com/tidwall/geojson/geometry"
-	// "github.com/iwpnd/fiber-key-auth"
 )
 
 func main() {
 	col := collection.NewCollection()
-
-	err := col.LoadFromPath("bin/test.geojson")
-
-	if err != nil {
-		fmt.Print("Could not load from file")
-	}
-
-	fmt.Printf("Successfully inserted %v items to the collection", col.Count())
+	col.LoadFromPath("bin/test.geojson")
 
 	app := fiber.New()
-	// app.Use(keyauth.New())
+	app.Use(keyauth.New())
 
-	app.Get("/healtz", func(c *fiber.Ctx) error {
-		return c.SendString("")
+	app.Get("/healthz", func(c *fiber.Ctx) error {
+		return c.SendStatus(200)
+	})
+
+	app.Post("/fence", func(c *fiber.Ctx) error {
+		d, err := geojson.Parse(string(c.Body()), nil)
+
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": err.Error(),
+			})
+		}
+
+		col.Create(d)
+		return c.JSON(d)
+	})
+
+	app.Delete("/fence", func(c *fiber.Ctx) error {
+		d, err := geojson.Parse(string(c.Body()), nil)
+
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": err.Error(),
+			})
+		}
+
+		col.Delete(d)
+		return c.JSON(d)
 	})
 
 	app.Post("/location", func(c *fiber.Ctx) error {
@@ -37,7 +55,6 @@ func main() {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"message": err.Error(),
 			})
-
 		}
 
 		errors := validation.ValidateStruct(*location)

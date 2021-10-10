@@ -8,28 +8,28 @@ import (
 	"io/ioutil"
 )
 
-type Collection struct {
+type Fences struct {
 	objects int
-	index   *geoindex.Index
+	tree    *geoindex.Index
 }
 
 type fence struct {
 	object geojson.Object
 }
 
-func NewCollection() *Collection {
-	c := &Collection{
-		index: geoindex.Wrap(&rtree.RTree{}),
+func NewCollection() *Fences {
+	c := &Fences{
+		tree: geoindex.Wrap(&rtree.RTree{}),
 	}
 	return c
 }
 
-func (c *Collection) Insert(g geojson.Object) {
+func (c *Fences) Create(g geojson.Object) {
 	f := &fence{object: g}
 
 	if !f.object.Empty() {
 		rect := f.object.Rect()
-		c.index.Insert(
+		c.tree.Insert(
 			[2]float64{rect.Min.X, rect.Min.Y},
 			[2]float64{rect.Max.X, rect.Max.Y},
 			f,
@@ -38,16 +38,30 @@ func (c *Collection) Insert(g geojson.Object) {
 	}
 }
 
-func (c *Collection) Count() int {
+func (c *Fences) Delete(g geojson.Object) {
+	f := &fence{object: g}
+
+	if !f.object.Empty() {
+		rect := f.object.Rect()
+		c.tree.Delete(
+			[2]float64{rect.Min.X, rect.Min.Y},
+			[2]float64{rect.Max.X, rect.Max.Y},
+			f,
+		)
+		c.objects--
+	}
+}
+
+func (c *Fences) Count() int {
 	return c.objects
 }
 
-func (c *Collection) geoSearch(
+func (c *Fences) search(
 	rect geometry.Rect,
 	iter func(object geojson.Object) bool,
 ) bool {
 	alive := true
-	c.index.Search(
+	c.tree.Search(
 		[2]float64{rect.Min.X, rect.Min.Y},
 		[2]float64{rect.Max.X, rect.Max.Y},
 		func(_, _ [2]float64, value interface{}) bool {
@@ -59,11 +73,11 @@ func (c *Collection) geoSearch(
 	return alive
 }
 
-func (c *Collection) intersects(
+func (c *Fences) intersects(
 	obj geojson.Object,
 	iter func(object geojson.Object) bool,
 ) bool {
-	return c.geoSearch(obj.Rect(),
+	return c.search(obj.Rect(),
 		func(f geojson.Object) bool {
 			if f.Intersects(obj) {
 				return iter(f)
@@ -73,7 +87,7 @@ func (c *Collection) intersects(
 	)
 }
 
-func (c *Collection) Intersects(
+func (c *Fences) Intersects(
 	obj geojson.Object,
 ) []geojson.Object {
 	var items []geojson.Object
@@ -86,7 +100,7 @@ func (c *Collection) Intersects(
 	return items
 }
 
-func (c *Collection) LoadFromPath(path string) error {
+func (c *Fences) LoadFromPath(path string) error {
 	file, err := ioutil.ReadFile(path)
 
 	if err != nil {
@@ -104,7 +118,7 @@ func (c *Collection) LoadFromPath(path string) error {
 			return true
 		}
 
-		c.Insert(o)
+		c.Create(o)
 		c.objects++
 		return true
 	})
