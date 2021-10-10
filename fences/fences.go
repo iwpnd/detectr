@@ -94,13 +94,11 @@ func (fences *Fences) Intersects(
 
 func (fences *Fences) LoadFromPath(path string) error {
 	file, err := ioutil.ReadFile(path)
-
 	if err != nil {
 		return err
 	}
 
 	fc, err := geojson.Parse(string(file), nil)
-
 	if err != nil {
 		return err
 	}
