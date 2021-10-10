@@ -38,20 +38,6 @@ func (c *Fences) Create(g geojson.Object) {
 	}
 }
 
-func (c *Fences) Delete(g geojson.Object) {
-	f := &fence{object: g}
-
-	if !f.object.Empty() {
-		rect := f.object.Rect()
-		c.tree.Delete(
-			[2]float64{rect.Min.X, rect.Min.Y},
-			[2]float64{rect.Max.X, rect.Max.Y},
-			f,
-		)
-		c.objects--
-	}
-}
-
 func (c *Fences) Count() int {
 	return c.objects
 }

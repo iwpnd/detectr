@@ -35,19 +35,6 @@ func main() {
 		return c.JSON(d)
 	})
 
-	app.Delete("/fence", func(c *fiber.Ctx) error {
-		d, err := geojson.Parse(string(c.Body()), nil)
-
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"message": err.Error(),
-			})
-		}
-
-		col.Delete(d)
-		return c.JSON(d)
-	})
-
 	app.Post("/location", func(c *fiber.Ctx) error {
 		location := new(models.Location)
 
