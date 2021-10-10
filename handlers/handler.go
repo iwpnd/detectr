@@ -1,15 +1,28 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/iwpnd/detectr/fences"
 	"github.com/iwpnd/detectr/models"
 	"github.com/iwpnd/detectr/validation"
 	"github.com/tidwall/geojson"
 	"github.com/tidwall/geojson/geometry"
+	"time"
 )
 
+type FenceResponse struct {
+	Elapsed string           `json:"elapsed"`
+	Request models.Location  `json:"request"`
+	Fences  []geojson.Object `json:"fences"`
+}
+
+type Response struct {
+	Data interface{} `json:"data"`
+}
+
 func PostLocation(c *fiber.Ctx) error {
+	start := time.Now()
 	f := fences.Get()
 	location := new(models.Location)
 
@@ -32,7 +45,17 @@ func PostLocation(c *fiber.Ctx) error {
 	)
 
 	matches := f.Intersects(p)
-	return c.JSON(geojson.NewFeatureCollection(matches))
+	elapsed := time.Since(start)
+
+	fr := &Response{
+		Data: FenceResponse{
+			Elapsed: fmt.Sprint(elapsed),
+			Request: *location,
+			Fences:  matches,
+		},
+	}
+
+	return c.JSON(&fr)
 }
 
 func PostFence(c *fiber.Ctx) error {
@@ -47,7 +70,9 @@ func PostFence(c *fiber.Ctx) error {
 	}
 
 	f.Create(d)
-	return c.JSON(d)
+
+	resp := &Response{Data: d}
+	return c.JSON(&resp)
 }
 
 func GetHealthz(c *fiber.Ctx) error {
