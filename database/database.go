@@ -9,8 +9,7 @@ import (
 )
 
 type Database struct {
-	objects int
-	tree    *geoindex.Index
+	tree *geoindex.Index
 }
 
 type fence struct {
@@ -31,6 +30,10 @@ func Get() *Database {
 	return database
 }
 
+func (db *Database) Truncate() {
+	db.tree = geoindex.Wrap(&rtree.RTree{})
+}
+
 func (db *Database) Create(g geojson.Object) {
 	f := &fence{object: g}
 
@@ -41,12 +44,20 @@ func (db *Database) Create(g geojson.Object) {
 			[2]float64{rect.Max.X, rect.Max.Y},
 			f,
 		)
-		db.objects++
 	}
 }
 
+func (db *Database) Delete(g geojson.Object) {
+	rect := g.Rect()
+	db.tree.Delete(
+		[2]float64{rect.Min.X, rect.Min.Y},
+		[2]float64{rect.Max.X, rect.Max.Y},
+		g,
+	)
+}
+
 func (db *Database) Count() int {
-	return db.objects
+	return db.tree.Len()
 }
 
 func (db *Database) search(
@@ -97,7 +108,6 @@ func (db *Database) LoadFromPath(path string) error {
 		}
 
 		db.Create(o)
-		db.objects++
 		return true
 	})
 
