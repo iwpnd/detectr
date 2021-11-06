@@ -3,7 +3,7 @@ package handlers
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/iwpnd/detectr/fences"
+	"github.com/iwpnd/detectr/database"
 	"github.com/iwpnd/detectr/models"
 	"github.com/iwpnd/detectr/validation"
 	"github.com/tidwall/geojson"
@@ -14,7 +14,7 @@ import (
 type FenceResponse struct {
 	Elapsed string           `json:"elapsed"`
 	Request models.Location  `json:"request"`
-	Fences  []geojson.Object `json:"fences"`
+	Matches []geojson.Object `json:"matches"`
 }
 
 type Response struct {
@@ -23,43 +23,43 @@ type Response struct {
 
 func PostLocation(c *fiber.Ctx) error {
 	start := time.Now()
-	f := fences.Get()
-	location := new(models.Location)
+	f := database.Get()
+	l := new(models.Location)
 
-	if err := c.BodyParser(location); err != nil {
+	if err := c.BodyParser(l); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
 
-	errors := validation.ValidateStruct(*location)
+	errors := validation.ValidateStruct(*l)
 	if errors != nil {
 		return c.JSON(errors)
 	}
 
 	p := geojson.NewPoint(
 		geometry.Point{
-			X: location.Lng,
-			Y: location.Lat,
+			X: l.Lng,
+			Y: l.Lat,
 		},
 	)
 
 	matches := f.Intersects(p)
 	elapsed := time.Since(start)
 
-	fr := &Response{
+	r := &Response{
 		Data: FenceResponse{
 			Elapsed: fmt.Sprint(elapsed),
-			Request: *location,
-			Fences:  matches,
+			Request: *l,
+			Matches: matches,
 		},
 	}
 
-	return c.JSON(&fr)
+	return c.JSON(&r)
 }
 
 func PostFence(c *fiber.Ctx) error {
-	f := fences.Get()
+	f := database.Get()
 
 	d, err := geojson.Parse(string(c.Body()), nil)
 
@@ -71,8 +71,8 @@ func PostFence(c *fiber.Ctx) error {
 
 	f.Create(d)
 
-	resp := &Response{Data: d}
-	return c.JSON(&resp)
+	r := &Response{Data: d}
+	return c.JSON(&r)
 }
 
 func GetHealthz(c *fiber.Ctx) error {

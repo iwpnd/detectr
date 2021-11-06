@@ -1,4 +1,4 @@
-package fences
+package database
 
 import (
 	"github.com/tidwall/geoindex"
@@ -8,52 +8,53 @@ import (
 	"io/ioutil"
 )
 
-type Fences struct {
+type Database struct {
 	objects int
 	tree    *geoindex.Index
 }
 
 type fence struct {
+	id     string
 	object geojson.Object
 }
 
 var database = New()
 
-func New() *Fences {
-	fences := &Fences{
+func New() *Database {
+	db := &Database{
 		tree: geoindex.Wrap(&rtree.RTree{}),
 	}
-	return fences
+	return db
 }
 
-func Get() *Fences {
+func Get() *Database {
 	return database
 }
 
-func (fences *Fences) Create(g geojson.Object) {
+func (db *Database) Create(g geojson.Object) {
 	f := &fence{object: g}
 
 	if !f.object.Empty() {
 		rect := f.object.Rect()
-		fences.tree.Insert(
+		db.tree.Insert(
 			[2]float64{rect.Min.X, rect.Min.Y},
 			[2]float64{rect.Max.X, rect.Max.Y},
 			f,
 		)
-		fences.objects++
+		db.objects++
 	}
 }
 
-func (fences *Fences) Count() int {
-	return fences.objects
+func (db *Database) Count() int {
+	return db.objects
 }
 
-func (fences *Fences) search(
+func (db *Database) search(
 	rect geometry.Rect,
 	iter func(object geojson.Object) bool,
 ) bool {
 	alive := true
-	fences.tree.Search(
+	db.tree.Search(
 		[2]float64{rect.Min.X, rect.Min.Y},
 		[2]float64{rect.Max.X, rect.Max.Y},
 		func(_, _ [2]float64, value interface{}) bool {
@@ -65,26 +66,12 @@ func (fences *Fences) search(
 	return alive
 }
 
-func (fences *Fences) intersects(
-	obj geojson.Object,
-	iter func(object geojson.Object) bool,
-) bool {
-	return fences.search(obj.Rect(),
-		func(f geojson.Object) bool {
-			if f.Intersects(obj) {
-				return iter(f)
-			}
-			return true
-		},
-	)
-}
-
-func (fences *Fences) Intersects(
+func (db *Database) Intersects(
 	obj geojson.Object,
 ) []geojson.Object {
 	var matches []geojson.Object
 
-	fences.intersects(obj, func(o geojson.Object) bool {
+	db.search(obj.Rect(), func(o geojson.Object) bool {
 		matches = append(matches, o)
 		return true
 	})
@@ -92,8 +79,9 @@ func (fences *Fences) Intersects(
 	return matches
 }
 
-func (fences *Fences) LoadFromPath(path string) error {
+func (db *Database) LoadFromPath(path string) error {
 	file, err := ioutil.ReadFile(path)
+
 	if err != nil {
 		return err
 	}
@@ -108,8 +96,8 @@ func (fences *Fences) LoadFromPath(path string) error {
 			return true
 		}
 
-		fences.Create(o)
-		fences.objects++
+		db.Create(o)
+		db.objects++
 		return true
 	})
 

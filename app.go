@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/iwpnd/detectr/fences"
+	"github.com/iwpnd/detectr/database"
 	"github.com/iwpnd/detectr/handlers"
 
 	"github.com/gofiber/fiber/v2"
@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	f := fences.Get()
+	f := database.Get()
 	f.LoadFromPath("bin/test.geojson")
 
 	app := fiber.New()
