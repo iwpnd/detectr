@@ -1,11 +1,12 @@
 package database
 
 import (
+	"io/ioutil"
+
 	"github.com/tidwall/geoindex"
 	"github.com/tidwall/geojson"
 	"github.com/tidwall/geojson/geometry"
 	"github.com/tidwall/rtree"
-	"io/ioutil"
 )
 
 type Database struct {
@@ -83,7 +84,9 @@ func (db *Database) Intersects(
 	var matches []geojson.Object
 
 	db.search(obj.Rect(), func(o geojson.Object) bool {
-		matches = append(matches, o)
+		if obj.Intersects(o) {
+			matches = append(matches, o)
+		}
 		return true
 	})
 

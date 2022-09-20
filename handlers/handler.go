@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/iwpnd/detectr/database"
 	"github.com/iwpnd/detectr/models"
 	"github.com/iwpnd/detectr/validation"
 	"github.com/tidwall/geojson"
 	"github.com/tidwall/geojson/geometry"
-	"time"
 )
 
 type FenceResponse struct {
