@@ -9,6 +9,7 @@ import (
 	"github.com/iwpnd/detectr/validation"
 	"github.com/tidwall/geojson"
 	"github.com/tidwall/geojson/geometry"
+	"go.uber.org/zap"
 )
 
 func (h *handler) PostLocation(c *fiber.Ctx) error {
@@ -25,6 +26,8 @@ func (h *handler) PostLocation(c *fiber.Ctx) error {
 	if errors != nil {
 		return c.JSON(errors)
 	}
+
+	h.Logger.Debug("Received Location", zap.Float64("latitude", l.Lat), zap.Float64("longitude", l.Lng))
 
 	p := geojson.NewPoint(
 		geometry.Point{

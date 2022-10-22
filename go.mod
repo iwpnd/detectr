@@ -9,6 +9,7 @@ require (
 	github.com/tidwall/geoindex v1.7.0
 	github.com/tidwall/geojson v1.3.6
 	github.com/tidwall/rtree v1.9.2
+	go.uber.org/zap v1.23.0
 )
 
 require (
@@ -26,6 +27,8 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.40.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
+	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20220919173607-35f4265a4bc0 // indirect
 	golang.org/x/sys v0.0.0-20220919091848-fb04ddd9f9c8 // indirect
 	golang.org/x/text v0.3.7 // indirect

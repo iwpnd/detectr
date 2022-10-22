@@ -3,15 +3,18 @@ package geofences
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/iwpnd/detectr/database"
+	"go.uber.org/zap"
 )
 
 type handler struct {
-	DB *database.Database
+	DB     *database.Database
+	Logger *zap.Logger
 }
 
-func RegisterRoutes(app *fiber.App, db *database.Database) {
+func RegisterRoutes(app *fiber.App, db *database.Database, logger *zap.Logger) {
 	h := &handler{
-		DB: db,
+		DB:     db,
+		Logger: logger,
 	}
 
 	routes := app.Group("geofence")
