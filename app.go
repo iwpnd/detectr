@@ -2,22 +2,27 @@ package main
 
 import (
 	"github.com/iwpnd/detectr/database"
-	"github.com/iwpnd/detectr/handlers"
+	"github.com/iwpnd/detectr/handlers/geofences"
+	"github.com/iwpnd/detectr/handlers/location"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/iwpnd/fiber-key-auth"
+	keyauth "github.com/iwpnd/fiber-key-auth"
 )
 
 func main() {
-	f := database.Get()
-	f.LoadFromPath("bin/test.geojson")
+	db := database.New()
+	db.LoadFromPath("bin/test.geojson")
 
 	app := fiber.New()
+
+	app.Get("/healthz", func(c *fiber.Ctx) error {
+		return c.SendStatus(200)
+	})
+
 	app.Use(keyauth.New())
 
-	app.Get("/healthz", handlers.GetHealthz)
-	app.Post("/fence", handlers.PostFence)
-	app.Post("/location", handlers.PostLocation)
+	location.RegisterRoutes(app, db)
+	geofences.RegisterRoutes(app, db)
 
 	app.Listen(":3000")
 }

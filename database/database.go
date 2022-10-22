@@ -18,17 +18,11 @@ type fence struct {
 	object geojson.Object
 }
 
-var database = New()
-
 func New() *Database {
 	db := &Database{
 		tree: geoindex.Wrap(&rtree.RTree{}),
 	}
 	return db
-}
-
-func Get() *Database {
-	return database
 }
 
 func (db *Database) Truncate() {
