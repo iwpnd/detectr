@@ -26,7 +26,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	app.Use(keyauth.New())
+	app.Use(keyauth.New(keyauth.WithStructuredErrorMsg()))
 
 	location.RegisterRoutes(app, db, logger)
 	geofences.RegisterRoutes(app, db, logger)
