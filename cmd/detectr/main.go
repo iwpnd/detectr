@@ -25,7 +25,10 @@ func startDetectr(ctx *cli.Context) error {
 
 	db := database.New()
 
-	app := fiber.New()
+	c := fiber.Config{
+		AppName: "detectr",
+	}
+	app := fiber.New(c)
 	app.Get("/healthz", func(c *fiber.Ctx) error {
 		return c.SendStatus(200)
 	})
