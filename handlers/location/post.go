@@ -22,12 +22,12 @@ func (h *handler) PostLocation(c *fiber.Ctx) error {
 		})
 	}
 
+	h.Logger.Debug("Received Location", zap.Float64("latitude", l.Lat), zap.Float64("longitude", l.Lng))
+
 	errors := validation.ValidateStruct(*l)
 	if errors != nil {
 		return c.JSON(errors)
 	}
-
-	h.Logger.Debug("Received Location", zap.Float64("latitude", l.Lat), zap.Float64("longitude", l.Lng))
 
 	p := geojson.NewPoint(
 		geometry.Point{

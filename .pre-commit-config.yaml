@@ -5,7 +5,7 @@ repos:
       - id: go-fmt
         args: [-w]
       - id: go-vet-mod
-      - id: golangci-lint
+      - id: golangci-lint-mod
       - id: go-imports
       - id: go-mod-tidy
   - repo: https://github.com/jorisroovers/gitlint

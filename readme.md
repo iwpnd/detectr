@@ -44,7 +44,8 @@ detectr --data my_featurecollection.geojson
 ```bash
 # send a location
 
-curl -X POST -d "lat=13.4042367&lng=52.473091" http://localhost:3000/location
+curl -X POST -d "lng=13.4042367&lat=52.473091" http://localhost:3000/location
+# or curl -X POST -H "Content-Type: application/json" -d '{"lng":13.4042367,"lat":52.473091}' http://localhost:3000/location
 
 >> {
   "data": {
