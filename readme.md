@@ -51,8 +51,8 @@ curl -X POST -d "lng=13.4042367&lat=52.473091" http://localhost:3000/location
   "data": {
     "elapsed": "150.75µs",
     "request": {
-      "lat": 52.25,
-      "lng": 13.37
+      "lat": 52.473091,
+      "lng": 13.4042367
     },
     "matches": [
         {
