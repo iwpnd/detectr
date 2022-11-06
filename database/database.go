@@ -1,7 +1,7 @@
 package database
 
 import (
-	"io/ioutil"
+	"os"
 
 	"github.com/tidwall/geoindex"
 	"github.com/tidwall/geojson"
@@ -14,7 +14,6 @@ type Database struct {
 }
 
 type fence struct {
-	id     string
 	object geojson.Object
 }
 
@@ -88,7 +87,7 @@ func (db *Database) Intersects(
 }
 
 func (db *Database) LoadFromPath(path string) error {
-	file, err := ioutil.ReadFile(path)
+	file, err := os.ReadFile(path)
 
 	if err != nil {
 		return err
