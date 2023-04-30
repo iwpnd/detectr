@@ -2,26 +2,22 @@ package validation
 
 import (
 	"github.com/go-playground/validator/v10"
+	"github.com/iwpnd/detectr/errors"
 )
 
-type ErrorResponse struct {
-	FailedField string
-	Tag         string
-	Value       string
-}
-
-func ValidateStruct(s interface{}) []*ErrorResponse {
-	var errors []*ErrorResponse
+func ValidateStruct(s interface{}) []*errors.ErrRequestError {
+	var errs []*errors.ErrRequestError
 	validate := validator.New()
 	err := validate.Struct(s)
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
-			var element ErrorResponse
-			element.FailedField = err.StructNamespace()
-			element.Tag = err.Tag()
-			element.Value = err.Param()
-			errors = append(errors, &element)
+			var element errors.ErrRequestError
+			element.Source = err.Field()
+			element.Title = "Invalid Attribute"
+			element.Detail = err.Tag()
+			element.Status = 400
+			errs = append(errs, &element)
 		}
 	}
-	return errors
+	return errs
 }

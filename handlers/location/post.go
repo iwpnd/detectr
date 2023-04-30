@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/iwpnd/detectr/errors"
 	"github.com/iwpnd/detectr/models"
 	"github.com/iwpnd/detectr/validation"
 	"github.com/tidwall/geojson"
@@ -16,10 +17,17 @@ func (h *handler) PostLocation(c *fiber.Ctx) error {
 	start := time.Now()
 	l := new(models.Location)
 
+	if string(c.Request().Header.ContentType()) != "application/json" {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors.NewRequestError(&errors.ErrRequestError{
+			Status: fiber.StatusUnprocessableEntity,
+			Detail: "Content-type must be 'application/json'",
+		}))
+	}
+
 	if err := c.BodyParser(l); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(
+			errors.NewRequestError(&errors.ErrRequestError{Detail: err.Error()}),
+		)
 	}
 
 	h.Logger.Debug("Received Location",
@@ -27,9 +35,9 @@ func (h *handler) PostLocation(c *fiber.Ctx) error {
 		zap.Float64("longitude", l.Lng),
 	)
 
-	errors := validation.ValidateStruct(*l)
-	if errors != nil {
-		return c.JSON(errors)
+	errs := validation.ValidateStruct(*l)
+	if errs != nil {
+		return c.Status(400).JSON(errors.NewRequestError(errs...))
 	}
 
 	p := geojson.NewPoint(
@@ -42,8 +50,8 @@ func (h *handler) PostLocation(c *fiber.Ctx) error {
 	matches := h.DB.Intersects(p)
 	elapsed := fmt.Sprint(time.Since(start))
 
-	r := &models.Response{
-		Data: models.GeofenceResponse{
+	r := &models.LocationResponse{
+		Data: models.LocationResponsePayload{
 			Elapsed: elapsed,
 			Request: *l,
 			Matches: matches,
