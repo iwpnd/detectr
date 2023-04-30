@@ -22,7 +22,10 @@ func (h *handler) PostLocation(c *fiber.Ctx) error {
 		})
 	}
 
-	h.Logger.Debug("Received Location", zap.Float64("latitude", l.Lat), zap.Float64("longitude", l.Lng))
+	h.Logger.Debug("Received Location",
+		zap.Float64("latitude", l.Lat),
+		zap.Float64("longitude", l.Lng),
+	)
 
 	errors := validation.ValidateStruct(*l)
 	if errors != nil {
@@ -37,15 +40,22 @@ func (h *handler) PostLocation(c *fiber.Ctx) error {
 	)
 
 	matches := h.DB.Intersects(p)
-	elapsed := time.Since(start)
+	elapsed := fmt.Sprint(time.Since(start))
 
 	r := &models.Response{
 		Data: models.GeofenceResponse{
-			Elapsed: fmt.Sprint(elapsed),
+			Elapsed: elapsed,
 			Request: *l,
 			Matches: matches,
 		},
 	}
+
+	h.Logger.Debug("Processed Location",
+		zap.Float64("latitude", l.Lat),
+		zap.Float64("longitude", l.Lng),
+		zap.String("elapsed", elapsed),
+		zap.Any("matches", &matches),
+	)
 
 	return c.JSON(&r)
 }
