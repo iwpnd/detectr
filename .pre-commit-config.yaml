@@ -9,6 +9,6 @@ repos:
       - id: go-imports
       - id: go-mod-tidy
   - repo: https://github.com/jorisroovers/gitlint
-    rev: v0.17.0
+    rev: v0.19.1
     hooks:
       - id: gitlint
