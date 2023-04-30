@@ -3,6 +3,7 @@ package database
 import (
 	"os"
 
+	"github.com/google/uuid"
 	"github.com/tidwall/geoindex"
 	"github.com/tidwall/geojson"
 	"github.com/tidwall/geojson/geometry"
@@ -14,6 +15,7 @@ type Database struct {
 }
 
 type fence struct {
+	id     string
 	object geojson.Object
 }
 
@@ -29,7 +31,8 @@ func (db *Database) Truncate() {
 }
 
 func (db *Database) Create(g geojson.Object) {
-	f := &fence{object: g}
+	id := uuid.Must(uuid.NewRandom()).String()
+	f := &fence{object: g, id: id}
 
 	if !f.object.Empty() {
 		rect := f.object.Rect()
