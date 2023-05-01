@@ -15,7 +15,7 @@ jobs:
       - name: setup go
         uses: actions/setup-go@v3
       - name: build
-        run: go build cmd/detectr-server/
+        run: go build ./cmd/detectr-server
       - name: lint
         uses: golangci/golangci-lint-action@v3.2.0
         with:
