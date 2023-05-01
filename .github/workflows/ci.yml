@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: setup go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
       - name: build
         run: go build ./cmd/detectr-server
       - name: lint
