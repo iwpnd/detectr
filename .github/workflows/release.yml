@@ -3,7 +3,7 @@ name: release
 on:
   push:
     tags:
-      - "*" 
+      - "*"
 
 jobs:
   build:
@@ -14,11 +14,9 @@ jobs:
       - name: checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 
-
+          fetch-depth: 0
       - name: setup
         uses: actions/setup-go@v3
-
       - name: release
         uses: goreleaser/goreleaser-action@master
         with:
