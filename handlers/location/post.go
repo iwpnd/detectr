@@ -8,8 +8,6 @@ import (
 	"github.com/iwpnd/detectr/errors"
 	"github.com/iwpnd/detectr/models"
 	"github.com/iwpnd/detectr/validation"
-	"github.com/tidwall/geojson"
-	"github.com/tidwall/geojson/geometry"
 	"go.uber.org/zap"
 )
 
@@ -40,12 +38,7 @@ func (h *handler) PostLocation(c *fiber.Ctx) error {
 		return c.Status(400).JSON(errors.NewRequestError(errs...))
 	}
 
-	p := geojson.NewPoint(
-		geometry.Point{
-			X: l.Lng,
-			Y: l.Lat,
-		},
-	)
+	p := []float64{l.Lng, l.Lat}
 
 	matches := h.DB.Intersects(p)
 	elapsed := fmt.Sprint(time.Since(start))

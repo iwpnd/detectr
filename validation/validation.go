@@ -5,6 +5,7 @@ import (
 	"github.com/iwpnd/detectr/errors"
 )
 
+// ValidateStruct ...
 func ValidateStruct(s interface{}) []*errors.ErrRequestError {
 	var errs []*errors.ErrRequestError
 	validate := validator.New()

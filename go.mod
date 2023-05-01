@@ -7,9 +7,10 @@ require (
 	github.com/gofiber/fiber/v2 v2.38.1
 	github.com/google/uuid v1.3.0
 	github.com/iwpnd/fiber-key-auth v0.2.0
+	github.com/iwpnd/piper v0.1.0
+	github.com/paulmach/go.geojson v1.4.0
 	github.com/stretchr/testify v1.8.2
 	github.com/tidwall/geoindex v1.7.0
-	github.com/tidwall/geojson v1.4.0
 	github.com/tidwall/rtree v1.9.2
 	github.com/urfave/cli/v2 v2.23.4
 	go.uber.org/zap v1.23.0
@@ -26,11 +27,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/tidwall/cities v0.1.0 // indirect
-	github.com/tidwall/gjson v1.14.3 // indirect
 	github.com/tidwall/lotsa v1.0.2 // indirect
-	github.com/tidwall/match v1.1.1 // indirect
-	github.com/tidwall/pretty v1.2.1 // indirect
-	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.40.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect

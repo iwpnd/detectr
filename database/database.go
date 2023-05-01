@@ -1,24 +1,58 @@
 package database
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/google/uuid"
+	"github.com/iwpnd/piper"
+	geojson "github.com/paulmach/go.geojson"
+
 	"github.com/tidwall/geoindex"
-	"github.com/tidwall/geojson"
-	"github.com/tidwall/geojson/geometry"
+
 	"github.com/tidwall/rtree"
 )
 
+func toExtent(r [][]float64) []float64 {
+	w := r[0][0]
+	s := r[0][1]
+	e := r[0][0]
+	n := r[0][1]
+
+	for _, p := range r {
+		if w > p[0] {
+			w = p[0]
+		}
+
+		if s > p[1] {
+			s = p[1]
+		}
+
+		if e < p[0] {
+			e = p[0]
+		}
+
+		if n < p[1] {
+			n = p[1]
+		}
+	}
+
+	return []float64{w, s, e, n}
+
+}
+
+// Database ...
 type Database struct {
 	tree *geoindex.Index
 }
 
-type fence struct {
+// Fence ...
+type Fence struct {
 	id     string
-	object geojson.Object
+	object geojson.Feature
 }
 
+// New to create a new database
 func New() *Database {
 	db := &Database{
 		tree: geoindex.Wrap(&rtree.RTree{}),
@@ -26,47 +60,54 @@ func New() *Database {
 	return db
 }
 
+// Truncate to create a new database
 func (db *Database) Truncate() {
 	db.tree = geoindex.Wrap(&rtree.RTree{})
 }
 
-func (db *Database) Create(g geojson.Object) {
-	id := uuid.Must(uuid.NewRandom()).String()
-	f := &fence{object: g, id: id}
-
-	if !f.object.Empty() {
-		rect := f.object.Rect()
-		db.tree.Insert(
-			[2]float64{rect.Min.X, rect.Min.Y},
-			[2]float64{rect.Max.X, rect.Max.Y},
-			f,
-		)
+// Create to create a new entry into the database
+func (db *Database) Create(g *geojson.Feature) error {
+	if !g.Geometry.IsPolygon() {
+		return &ErrInvalidGeometry{Type: g.Geometry.Type}
 	}
+
+	id := uuid.Must(uuid.NewRandom()).String()
+	f := &Fence{object: *g, id: id}
+
+	rect := toExtent(g.Geometry.Polygon[0])
+	db.tree.Insert(
+		[2]float64{rect[0], rect[1]},
+		[2]float64{rect[2], rect[3]},
+		f,
+	)
+	return nil
 }
 
-func (db *Database) Delete(g geojson.Object) {
-	rect := g.Rect()
+// Delete to delete an entry from the database
+func (db *Database) Delete(g geojson.Feature) {
+	rect := toExtent(g.Geometry.Polygon[0])
 	db.tree.Delete(
-		[2]float64{rect.Min.X, rect.Min.Y},
-		[2]float64{rect.Max.X, rect.Max.Y},
+		[2]float64{rect[0], rect[1]},
+		[2]float64{rect[2], rect[3]},
 		g,
 	)
 }
 
+// Count to get the current amount of entries in the database
 func (db *Database) Count() int {
 	return db.tree.Len()
 }
 
 func (db *Database) search(
-	rect geometry.Rect,
-	iter func(object geojson.Object) bool,
+	p []float64,
+	iter func(object geojson.Feature) bool,
 ) bool {
 	alive := true
 	db.tree.Search(
-		[2]float64{rect.Min.X, rect.Min.Y},
-		[2]float64{rect.Max.X, rect.Max.Y},
+		[2]float64{p[0], p[1]},
+		[2]float64{p[0], p[1]},
 		func(_, _ [2]float64, value interface{}) bool {
-			item := value.(*fence)
+			item := value.(*Fence)
 			alive = iter(item.object)
 			return alive
 		},
@@ -74,14 +115,18 @@ func (db *Database) search(
 	return alive
 }
 
+// Intersects to find entries intersecting the requested point
 func (db *Database) Intersects(
-	obj geojson.Object,
-) []geojson.Object {
-	var matches []geojson.Object
+	p []float64,
+) []geojson.Feature {
+	var matches []geojson.Feature
 
-	db.search(obj.Rect(), func(o geojson.Object) bool {
-		if obj.Intersects(o) {
-			matches = append(matches, o)
+	db.search(p, func(o geojson.Feature) bool {
+		if o.Geometry.IsPolygon() {
+			if piper.Pip(p, o.Geometry.Polygon) {
+				matches = append(matches, o)
+			}
+			return true
 		}
 		return true
 	})
@@ -89,6 +134,7 @@ func (db *Database) Intersects(
 	return matches
 }
 
+// LoadFromPath to load a FeatureCollection from file
 func (db *Database) LoadFromPath(path string) error {
 	file, err := os.ReadFile(path)
 
@@ -96,19 +142,17 @@ func (db *Database) LoadFromPath(path string) error {
 		return err
 	}
 
-	fc, err := geojson.Parse(string(file), nil)
+	fc, err := geojson.UnmarshalFeatureCollection(file)
 	if err != nil {
 		return err
 	}
 
-	fc.ForEach(func(o geojson.Object) bool {
-		if o.Empty() {
-			return true
+	for _, f := range fc.Features {
+		err := db.Create(f)
+		if err != nil {
+			fmt.Print("skipping geometry: ", err.Error())
 		}
-
-		db.Create(o)
-		return true
-	})
+	}
 
 	return nil
 }

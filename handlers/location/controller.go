@@ -11,6 +11,7 @@ type handler struct {
 	Logger *zap.Logger
 }
 
+// RegisterRoutes to register routes with the fiber app
 func RegisterRoutes(app *fiber.App, db *database.Database, logger *zap.Logger) {
 	h := &handler{
 		DB:     db,
