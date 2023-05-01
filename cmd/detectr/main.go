@@ -33,6 +33,10 @@ func startDetectr(ctx *cli.Context) error {
 		return c.SendStatus(200)
 	})
 
+	if port == 0 {
+		port = 3000
+	}
+
 	if datapath != "" {
 		err := db.LoadFromPath(datapath)
 		if err != nil {
