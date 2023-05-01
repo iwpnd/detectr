@@ -48,7 +48,6 @@ type Database struct {
 
 // Fence ...
 type Fence struct {
-	id     string
 	object geojson.Feature
 }
 
@@ -75,8 +74,12 @@ func (db *Database) Create(g *geojson.Feature) error {
 		return &ErrInvalidGeometryType{Type: g.Geometry.Type}
 	}
 
-	id := uuid.Must(uuid.NewRandom()).String()
-	f := &Fence{object: *g, id: id}
+	if g.ID == nil {
+		id := uuid.Must(uuid.NewRandom()).String()
+		g.ID = id
+	}
+
+	f := &Fence{object: *g}
 
 	rect := toExtent(g.Geometry.Polygon[0])
 	db.tree.Insert(

@@ -13,6 +13,53 @@ func setupDatabase() *Database {
 	return db
 }
 
+func TestCreate(t *testing.T) {
+	db := setupDatabase()
+
+	expected := []byte(`{"id":"foobar","type":"Feature","geometry":{"type":"Polygon","coordinates":[[[13.3967096231641,52.47425410999395],[13.3967096231641,52.4680479999262],[13.413318577304466,52.4680479999262],[13.413318577304466,52.47425410999395],[13.3967096231641,52.47425410999395]]]},"properties":{"id":"foobar"}}`)
+
+	f, err := geojson.UnmarshalFeature(expected)
+	if err != nil {
+		t.Fatal("failed to unmarshal feature: ", err)
+	}
+
+	err = db.Create(f)
+	if err != nil {
+		t.Fatal("failed to create feature")
+	}
+
+	p := []float64{13.40532627661105, 52.471361312503575}
+
+	matches := db.Intersects(p)
+	got, _ := matches[0].MarshalJSON()
+
+	assert.Equal(t, string(expected), string(got))
+}
+
+func TestCreateGenerateID(t *testing.T) {
+	db := setupDatabase()
+
+	data := []byte(`{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[13.3967096231641,52.47425410999395],[13.3967096231641,52.4680479999262],[13.413318577304466,52.4680479999262],[13.413318577304466,52.47425410999395],[13.3967096231641,52.47425410999395]]]}}`)
+
+	f, err := geojson.UnmarshalFeature(data)
+	if err != nil {
+		t.Fatal("failed to unmarshal feature: ", err)
+	}
+
+	assert.Nil(t, f.ID)
+
+	err = db.Create(f)
+	if err != nil {
+		t.Fatal("failed to create feature")
+	}
+
+	p := []float64{13.40532627661105, 52.471361312503575}
+
+	matches := db.Intersects(p)
+
+	assert.NotNil(t, matches[0].ID)
+}
+
 func TestCreateFailed(t *testing.T) {
 	db := setupDatabase()
 
