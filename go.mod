@@ -1,6 +1,6 @@
 module github.com/iwpnd/detectr
 
-go 1.17
+go 1.19
 
 require (
 	github.com/go-playground/validator/v10 v10.11.1
