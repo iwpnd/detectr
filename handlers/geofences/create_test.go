@@ -2,11 +2,14 @@ package geofences
 
 import (
 	"bytes"
+	"encoding/json"
+	"io"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/iwpnd/detectr/database"
+	"github.com/iwpnd/detectr/errors"
 	"github.com/iwpnd/detectr/logger"
 	"github.com/stretchr/testify/assert"
 )
@@ -28,9 +31,10 @@ func TestCreate(t *testing.T) {
 	data := []byte(`{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[13.3967096231641,52.47425410999395],[13.3967096231641,52.4680479999262],[13.413318577304466,52.4680479999262],[13.413318577304466,52.47425410999395],[13.3967096231641,52.47425410999395]]]}}`)
 
 	type tcase struct {
-		Body         []byte
-		ContentType  string
-		ExpectedCode int
+		Body          []byte
+		ContentType   string
+		ExpectedCode  int
+		ExpectedError string
 	}
 
 	tests := map[string]tcase{
@@ -44,15 +48,23 @@ func TestCreate(t *testing.T) {
 			ContentType:  "application/geo+json",
 			ExpectedCode: 422,
 		},
+		"test invalid geometry type": {
+			Body:          []byte(`{"type":"Feature","properties":{},"geometry":{"type:"Point","coorddinates":[1,1]}}`),
+			ContentType:   "application/json",
+			ExpectedCode:  422,
+			ExpectedError: "invalid geometry type: Point",
+		},
 		"test empty geofence": {
-			Body:         []byte(``),
-			ContentType:  "application/json",
-			ExpectedCode: 422,
+			Body:          []byte(``),
+			ContentType:   "application/json",
+			ExpectedCode:  422,
+			ExpectedError: "empty geometry",
 		},
 		"test faulty geofence": {
-			Body:         []byte(`{"foo":"bar"}`),
-			ContentType:  "application/json",
-			ExpectedCode: 422,
+			Body:          []byte(`{"foo":"bar"}`),
+			ContentType:   "application/json",
+			ExpectedCode:  422,
+			ExpectedError: "empty geometry",
 		},
 	}
 
@@ -66,6 +78,23 @@ func TestCreate(t *testing.T) {
 		r.Header.Add("Content-Type", test.ContentType)
 
 		resp, _ := app.Test(r, -1)
+		defer resp.Body.Close()
+
 		assert.Equal(t, test.ExpectedCode, resp.StatusCode)
+
+		if test.ExpectedError != "" {
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				t.Fatal("cannot read body")
+			}
+
+			e := &errors.ErrRequestError{}
+			err = json.Unmarshal(body, e)
+			if err != nil {
+				t.Fatal("cannot unmarshal response")
+			}
+
+			e.Detail = test.ExpectedError
+		}
 	}
 }
