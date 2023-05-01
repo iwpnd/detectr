@@ -1,7 +1,8 @@
 # detectr
 
-a minimal geofencing application build with [gofiber](https://github.com/gofiber/fiber),
-[rtree](https://github.com/tidwall/rtree) and [geoindex](https://github.com/tidwall/geoindex).
+A minimal geofencing application build with [gofiber](https://github.com/gofiber/fiber), using an embedded 
+[rtree](https://github.com/tidwall/rtree) and [geoindex](https://github.com/tidwall/geoindex) for fast
+geospatial lookups.
 
 Bring your own data, pass a location and receive the geofences that your location
 is currently in.
