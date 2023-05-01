@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"os/signal"
 
 	"fmt"
 
@@ -64,6 +65,14 @@ func startDetectr(ctx *cli.Context) error {
 
 	location.RegisterRoutes(app, db, logr)
 	geofences.RegisterRoutes(app, db, logr)
+
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, os.Interrupt)
+	go func() {
+		<-ch
+		logr.Info("Gracefully shutting down...")
+		_ = app.Shutdown()
+	}()
 
 	err = app.Listen(fmt.Sprintf(":%v", port))
 	if err != nil {
