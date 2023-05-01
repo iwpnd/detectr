@@ -28,6 +28,7 @@ func setupApp() (*fiber.App, error) {
 
 	data, _ := geojson.UnmarshalFeature(data)
 
+	_ = logger.SetLogLevel("warn")
 	lg, _ := logger.New()
 
 	db := database.New()

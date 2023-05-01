@@ -14,6 +14,7 @@ import (
 func setupApp() *fiber.App {
 	app := fiber.New()
 
+	_ = logger.SetLogLevel("warn")
 	lg, _ := logger.New()
 	db := database.New()
 	RegisterRoutes(app, db, lg)
@@ -41,6 +42,16 @@ func TestCreate(t *testing.T) {
 		"test application/geo+json": {
 			Body:         data,
 			ContentType:  "application/geo+json",
+			ExpectedCode: 422,
+		},
+		"test empty geofence": {
+			Body:         []byte(``),
+			ContentType:  "application/json",
+			ExpectedCode: 422,
+		},
+		"test faulty geofence": {
+			Body:         []byte(`{"foo":"bar"}`),
+			ContentType:  "application/json",
 			ExpectedCode: 422,
 		},
 	}

@@ -67,8 +67,12 @@ func (db *Database) Truncate() {
 
 // Create to create a new entry into the database
 func (db *Database) Create(g *geojson.Feature) error {
+	if g.Geometry == nil {
+		return &ErrEmptyGeometry{}
+	}
+
 	if !g.Geometry.IsPolygon() {
-		return &ErrInvalidGeometry{Type: g.Geometry.Type}
+		return &ErrInvalidGeometryType{Type: g.Geometry.Type}
 	}
 
 	id := uuid.Must(uuid.NewRandom()).String()

@@ -7,11 +7,19 @@ import (
 )
 
 // ErrInvalidGeometry ...
-type ErrInvalidGeometry struct {
+type ErrInvalidGeometryType struct {
 	Type geojson.GeometryType
 }
 
 // Error ...
-func (err ErrInvalidGeometry) Error() string {
+func (err ErrInvalidGeometryType) Error() string {
 	return fmt.Sprintf("%s is an invalid geometry", err.Type)
+}
+
+// ErrEmptyGeometry ...
+type ErrEmptyGeometry struct{}
+
+// Error ...
+func (err ErrEmptyGeometry) Error() string {
+	return "empty geometry"
 }

@@ -24,15 +24,14 @@ func (h *handler) CreateFence(c *fiber.Ctx) error {
 
 	d, err := geojson.UnmarshalFeature(c.Body())
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(errors.NewRequestError(&errors.ErrRequestError{
-			Status: fiber.StatusUnprocessableEntity,
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors.NewRequestError(&errors.ErrRequestError{Status: fiber.StatusUnprocessableEntity,
 			Detail: err.Error(),
 		}))
 	}
 
 	err = h.DB.Create(d)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(errors.NewRequestError(&errors.ErrRequestError{
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors.NewRequestError(&errors.ErrRequestError{
 			Status: fiber.StatusUnprocessableEntity,
 			Detail: err.Error(),
 		}))
