@@ -88,7 +88,7 @@ func (db *Database) Create(g *geojson.Feature) error {
 }
 
 // Delete to delete an entry from the database
-func (db *Database) Delete(g geojson.Feature) {
+func (db *Database) Delete(g *geojson.Feature) {
 	rect := toExtent(g.Geometry.Polygon[0])
 	db.tree.Delete(
 		[2]float64{rect[0], rect[1]},

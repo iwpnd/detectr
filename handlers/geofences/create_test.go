@@ -52,7 +52,7 @@ func TestCreate(t *testing.T) {
 			Body:          []byte(`{"type":"Feature","properties":{},"geometry":{"type:"Point","coorddinates":[1,1]}}`),
 			ContentType:   "application/json",
 			ExpectedCode:  422,
-			ExpectedError: "invalid geometry type: Point",
+			ExpectedError: "unsupported geometry type: Point",
 		},
 		"test empty geofence": {
 			Body:          []byte(``),

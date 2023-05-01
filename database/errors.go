@@ -13,7 +13,7 @@ type ErrInvalidGeometryType struct {
 
 // Error ...
 func (err ErrInvalidGeometryType) Error() string {
-	return fmt.Sprintf("%s is an invalid geometry", err.Type)
+	return fmt.Sprintf("unsupported geometry type: %s", err.Type)
 }
 
 // ErrEmptyGeometry ...
