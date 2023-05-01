@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
 
 	"fmt"
 
@@ -25,10 +26,25 @@ func startDetectr(ctx *cli.Context) error {
 	loglevel := ctx.String("log-level")
 	requirekey := ctx.Bool("require-key")
 
+	if loglevel != "" {
+		err := logger.SetLogLevel(loglevel)
+		if err != nil {
+			log.Fatal(err)
+			return err
+		}
+	}
+
+	l, err := logger.New()
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	db := database.New()
 
 	c := fiber.Config{
-		AppName: "detectr",
+		AppName:               "detectr",
+		DisableStartupMessage: true,
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
 			return ctx.Status(
 				fiber.StatusInternalServerError).JSON(
@@ -44,51 +60,43 @@ func startDetectr(ctx *cli.Context) error {
 		return c.SendStatus(200)
 	})
 
+	l.Info("Starting detectr...")
+
 	if port == 0 {
 		port = 3000
 	}
 
 	if datapath != "" {
+		start := time.Now()
+		l.Info(fmt.Sprintf("Ingesting data from local file path: %v", datapath))
 		err := db.LoadFromPath(datapath)
 		if err != nil {
 			log.Fatal(err)
 			return err
 		}
-	}
-
-	if loglevel != "" {
-		err := logger.SetLogLevel(loglevel)
-		if err != nil {
-			log.Fatal(err)
-			return err
-		}
+		elapsed := fmt.Sprint(time.Since(start))
+		l.Info(fmt.Sprintf("Done ingesting data from local file path: %v. Took: %v", datapath, elapsed))
 	}
 
 	if requirekey {
 		app.Use(keyauth.New(keyauth.WithStructuredErrorMsg()))
 	}
 
-	logr, err := logger.New()
-	if err != nil {
-		fmt.Println(err)
-	}
+	location.RegisterRoutes(app, db, l)
+	geofences.RegisterRoutes(app, db, l)
 
-	location.RegisterRoutes(app, db, logr)
-	geofences.RegisterRoutes(app, db, logr)
+	go func() {
+		l.Info(fmt.Sprintf("Detectr listening on port :%v", port))
+		if err := app.Listen(fmt.Sprintf(":%v", port)); err != nil {
+			log.Panic(err)
+		}
+	}()
 
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt)
-	go func() {
-		<-ch
-		logr.Info("Gracefully shutting down...")
-		_ = app.Shutdown()
-	}()
-
-	err = app.Listen(fmt.Sprintf(":%v", port))
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
+	<-ch
+	l.Info("Shutting down detectr...")
+	_ = app.Shutdown()
 
 	return nil
 }
