@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/iwpnd/detectr/database"
+	"github.com/iwpnd/detectr/errors"
 	"github.com/iwpnd/detectr/handlers/geofences"
 	"github.com/iwpnd/detectr/handlers/location"
 	"github.com/iwpnd/detectr/logger"
@@ -28,7 +29,16 @@ func startDetectr(ctx *cli.Context) error {
 
 	c := fiber.Config{
 		AppName: "detectr",
+		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+			return ctx.Status(
+				fiber.StatusInternalServerError).JSON(
+				errors.NewRequestError(
+					&errors.ErrRequestError{
+						Status: fiber.StatusInternalServerError,
+						Detail: err.Error()}))
+		},
 	}
+
 	app := fiber.New(c)
 	app.Get("/healthz", func(c *fiber.Ctx) error {
 		return c.SendStatus(200)
