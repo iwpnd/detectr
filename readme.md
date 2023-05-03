@@ -1,6 +1,6 @@
 # detectr
 
-A minimal geofencing application build with [gofiber](https://github.com/gofiber/fiber), using an embedded 
+A minimal geofencing application build with [gofiber](https://github.com/gofiber/fiber), using an embedded
 [rtree](https://github.com/tidwall/rtree) and [geoindex](https://github.com/tidwall/geoindex) for fast
 geospatial lookups.
 
@@ -12,7 +12,7 @@ is currently in.
 ### cli
 
 ```bash
-go install github.com/iwpnd/detectr/cmd/detectr@latest
+go install github.com/iwpnd/detectr/cmd/detectr-server@latest
 ```
 
 ```bash
