@@ -10,7 +10,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/iwpnd/detectr/database"
+	"github.com/iwpnd/detectr/database/memory"
 	"github.com/iwpnd/detectr/errors"
 	"github.com/iwpnd/detectr/handlers/geofences"
 	"github.com/iwpnd/detectr/handlers/location"
@@ -40,7 +40,7 @@ func startDetectr(ctx *cli.Context) error {
 		fmt.Println(err)
 	}
 
-	db := database.New()
+	db := memory.New()
 
 	c := fiber.Config{
 		AppName:               "detectr",

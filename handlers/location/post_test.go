@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/iwpnd/detectr/database"
+	"github.com/iwpnd/detectr/database/memory"
 	"github.com/iwpnd/detectr/logger"
 	"github.com/iwpnd/detectr/models"
 
@@ -31,7 +31,7 @@ func setupApp() (*fiber.App, error) {
 	_ = logger.SetLogLevel("warn")
 	lg, _ := logger.New()
 
-	db := database.New()
+	db := memory.New()
 
 	err := db.Create(data)
 	if err != nil {

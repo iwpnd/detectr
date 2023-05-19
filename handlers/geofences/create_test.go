@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/iwpnd/detectr/database"
+	"github.com/iwpnd/detectr/database/memory"
 	"github.com/iwpnd/detectr/errors"
 	"github.com/iwpnd/detectr/logger"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +19,7 @@ func setupApp() *fiber.App {
 
 	_ = logger.SetLogLevel("warn")
 	lg, _ := logger.New()
-	db := database.New()
+	db := memory.New()
 	RegisterRoutes(app, db, lg)
 
 	return app

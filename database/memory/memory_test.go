@@ -1,4 +1,4 @@
-package database
+package memory
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setupDatabase() *Database {
+func setupDatabase() *Memory {
 	db := New()
 
 	return db

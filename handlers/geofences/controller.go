@@ -7,12 +7,12 @@ import (
 )
 
 type handler struct {
-	DB     *database.Database
+	DB     database.Datastore
 	Logger *zap.Logger
 }
 
 // RegisterRoutes to register geofence routes with the fiber app
-func RegisterRoutes(app *fiber.App, db *database.Database, logger *zap.Logger) {
+func RegisterRoutes(app *fiber.App, db database.Datastore, logger *zap.Logger) {
 	h := &handler{
 		DB:     db,
 		Logger: logger,
