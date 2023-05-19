@@ -9,9 +9,9 @@ type Response struct {
 
 // LocationResponsePayload ...
 type LocationResponsePayload struct {
-	Elapsed string            `json:"elapsed"`
-	Request Location          `json:"request"`
-	Matches []geojson.Feature `json:"matches"`
+	Elapsed string             `json:"elapsed"`
+	Request Location           `json:"request"`
+	Matches []*geojson.Feature `json:"matches"`
 }
 
 // LocationResponse ...

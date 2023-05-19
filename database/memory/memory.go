@@ -52,7 +52,7 @@ func (db *Memory) Create(g *geojson.Feature) error {
 	db.tree.Insert(
 		[2]float64{rect[0], rect[1]},
 		[2]float64{rect[2], rect[3]},
-		*g,
+		g,
 	)
 	return nil
 }
@@ -76,14 +76,14 @@ func (db *Memory) Count() int {
 
 func (db *Memory) search(
 	p []float64,
-	iter func(object geojson.Feature) bool,
+	iter func(object *geojson.Feature) bool,
 ) bool {
 	alive := true
 	db.tree.Search(
 		[2]float64{p[0], p[1]},
 		[2]float64{p[0], p[1]},
 		func(_, _ [2]float64, value interface{}) bool {
-			item := value.(geojson.Feature)
+			item := value.(*geojson.Feature)
 			alive = iter(item)
 			return alive
 		},
@@ -92,10 +92,10 @@ func (db *Memory) search(
 }
 
 // Intersects to find entries intersecting the requested point
-func (db *Memory) Intersects(p []float64) []geojson.Feature {
-	var matches []geojson.Feature
+func (db *Memory) Intersects(p []float64) []*geojson.Feature {
+	var matches []*geojson.Feature
 
-	db.search(p, func(o geojson.Feature) bool {
+	db.search(p, func(o *geojson.Feature) bool {
 		if o.Geometry.IsPolygon() {
 			if piper.Pip(p, o.Geometry.Polygon) {
 				matches = append(matches, o)

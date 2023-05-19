@@ -118,7 +118,7 @@ func TestTruncate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	t.Skip()
+	// t.Skip()
 
 	db := setupDatabase()
 	defer db.Truncate()

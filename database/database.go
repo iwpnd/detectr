@@ -7,7 +7,7 @@ import (
 )
 
 type Searcher interface {
-	Intersects(p []float64) []geojson.Feature
+	Intersects(p []float64) []*geojson.Feature
 }
 
 type Creater interface {
