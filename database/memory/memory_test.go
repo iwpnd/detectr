@@ -118,8 +118,6 @@ func TestTruncate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	// t.Skip()
-
 	db := setupDatabase()
 	defer db.Truncate()
 
@@ -141,6 +139,6 @@ func TestDelete(t *testing.T) {
 
 	db.Delete(f)
 
-	// assert.Equal(t, 0, db.Count())
+	assert.Equal(t, 0, db.Count())
 	assert.Equal(t, 0, len(db.Intersects(p)))
 }
