@@ -47,7 +47,8 @@ func (db *Memory) Create(g *geojson.Feature) error {
 		g.ID = id
 	}
 
-	rect := database.ToExtent(g.Geometry.Polygon[0])
+	var or database.OuterRing = g.Geometry.Polygon[0]
+	rect := or.ToExtent()
 	db.tree.Insert(
 		[2]float64{rect[0], rect[1]},
 		[2]float64{rect[2], rect[3]},
@@ -58,8 +59,9 @@ func (db *Memory) Create(g *geojson.Feature) error {
 
 // Delete to delete an entry from the database
 func (db *Memory) Delete(g *geojson.Feature) {
-	rect := database.ToExtent(g.Geometry.Polygon[0])
-	fmt.Printf("%+v", rect)
+	var or database.OuterRing = g.Geometry.Polygon[0]
+	rect := or.ToExtent()
+
 	db.tree.Delete(
 		[2]float64{rect[0], rect[1]},
 		[2]float64{rect[2], rect[3]},

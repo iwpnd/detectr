@@ -1,6 +1,10 @@
 package database
 
-import geojson "github.com/paulmach/go.geojson"
+import (
+	"math"
+
+	geojson "github.com/paulmach/go.geojson"
+)
 
 type Searcher interface {
 	Intersects(p []float64) []geojson.Feature
@@ -21,7 +25,23 @@ type Datastore interface {
 	Deleter
 }
 
-func ToExtent(r [][]float64) []float64 {
+type Extent []float64
+
+func (ex Extent) Center() []float64 {
+	w := ex[0]
+	s := ex[1]
+	e := ex[2]
+	n := ex[3]
+
+	lat := n - math.Abs(s-n)/2
+	lng := e - math.Abs(w-e)/2
+
+	return []float64{lng, lat}
+}
+
+type OuterRing [][]float64
+
+func (r OuterRing) ToExtent() Extent {
 	w := r[0][0]
 	s := r[0][1]
 	e := r[0][0]
