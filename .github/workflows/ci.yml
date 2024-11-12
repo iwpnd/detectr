@@ -1,12 +1,10 @@
 name: ci
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
-
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -17,7 +15,7 @@ jobs:
       - name: build
         run: go build ./cmd/detectr-server
       - name: lint
-        uses: golangci/golangci-lint-action@v6.1.0
+        uses: golangci/golangci-lint-action@v6.1.1
         with:
           version: latest
       - name: test
