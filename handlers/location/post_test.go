@@ -47,7 +47,7 @@ func setupApp() (*fiber.App, error) {
 func TestLocation(t *testing.T) {
 	app, err := setupApp()
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatal(err.Error())
 	}
 
 	type tcase struct {
